@@ -1,46 +1,64 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { useSelector, useDispatch } from "react-redux";
-import { addToCart } from "./features/CartSlice.js";
-import Cart from "./features/Cart.js";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useDispatch } from "react-redux";
+import { addToCart } from "./features/CartSlice";
+import Cart from "./features/Cart";
+import AuthPage from "./pages/AuthPage";
+import OrderHistory from "./pages/OrderHistory";
+import {
+  getAllProducts,
+  createProduct,
+  updateProduct,
+  deleteProduct,
+} from "./services/productService";
 
 function App() {
   const dispatch = useDispatch();
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const queryClient = useQueryClient();
 
-  const { data: categories = [] } = useQuery({
-    queryKey: ["categories"],
-    queryFn: async () => {
-      const res = await fetch("https://fakestoreapi.com/products/categories");
-      return res.json();
-    },
-  });
-
+  // 📥 Load products
   const { data: products = [], isLoading } = useQuery({
-    queryKey: ["products", selectedCategory],
-    queryFn: async () => {
-      const url = selectedCategory
-        ? `https://fakestoreapi.com/products/category/${selectedCategory}`
-        : "https://fakestoreapi.com/products";
-
-      const res = await fetch(url);
-      return res.json();
-    },
+    queryKey: ["products"],
+    queryFn: getAllProducts,
   });
+
+  // ➕ Add product
+  async function handleAddProduct() {
+    await createProduct({
+      title: "New Product",
+      price: 25,
+      description: "Test product",
+      category: "general",
+      image: "",
+    });
+
+    queryClient.invalidateQueries(["products"]);
+  }
+
+  // ✏️ Update product
+  async function handleUpdate(id) {
+    await updateProduct(id, { price: 99 });
+    queryClient.invalidateQueries(["products"]);
+  }
+
+  // ❌ Delete product
+  async function handleDelete(id) {
+    await deleteProduct(id);
+    queryClient.invalidateQueries(["products"]);
+  }
 
   if (isLoading) return <h2>Loading...</h2>;
 
   return (
     <div style={{ padding: "20px" }}>
+      {/* 🔐 AUTH */}
+      <AuthPage />
+
       <h1>Product List</h1>
 
-      <select onChange={(e) => setSelectedCategory(e.target.value)}>
-        <option value="">All Categories</option>
-        {categories.map((cat) => (
-          <option key={cat}>{cat}</option>
-        ))}
-      </select>
+      {/* ➕ CREATE */}
+      <button onClick={handleAddProduct}>Add Product</button>
 
+      {/* 📦 PRODUCTS */}
       {products.map((product) => (
         <div
           key={product.id}
@@ -52,27 +70,45 @@ function App() {
         >
           <h2>{product.title}</h2>
           <p>${product.price}</p>
-          <p>{product.category}</p>
-          <p>{product.description}</p>
-          <p>⭐ {product.rating.rate}</p>
 
-          <img
-            src={product.image}
-            alt={product.title}
-            width="100"
-            onError={(e) => {
-              e.target.src = "https://via.placeholder.com/100";
-            }}
-          />
+          {product.category && <p>{product.category}</p>}
+          {product.description && <p>{product.description}</p>}
+
+          {product.image && (
+            <img
+              src={product.image}
+              alt={product.title}
+              width="100"
+              onError={(e) => {
+                e.target.src = "https://via.placeholder.com/100";
+              }}
+            />
+          )}
 
           <br />
+
+          {/* 🛒 CART */}
           <button onClick={() => dispatch(addToCart(product))}>
             Add to Cart
+          </button>
+
+          {/* ✏️ UPDATE */}
+          <button onClick={() => handleUpdate(product.id)}>
+            Update
+          </button>
+
+          {/* ❌ DELETE */}
+          <button onClick={() => handleDelete(product.id)}>
+            Delete
           </button>
         </div>
       ))}
 
+      {/* 🛒 CART */}
       <Cart />
+
+      {/* 📜 ORDER HISTORY */}
+      <OrderHistory />
     </div>
   );
 }
