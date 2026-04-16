@@ -1,4 +1,4 @@
-import { db } from "../js/firebase"; // ✅ FIXED PATH
+import { db } from "../js/firebase";
 import {
   collection,
   addDoc,
@@ -9,20 +9,20 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 
-// Match your Firestore collection name exactly
-const productsCol = collection(db, "Products");
+// ❌ REMOVE this top-level call
+// const productsCol = collection(db, "Products");
 
 // ➕ CREATE
 export async function createProduct(product) {
-  return addDoc(productsCol, {
+  return addDoc(collection(db, "Products"), { // ✅ moved inside
     ...product,
-    createdAt: serverTimestamp(), // ✅ better than new Date()
+    createdAt: serverTimestamp(),
   });
 }
 
 // 📥 READ ALL
 export async function getAllProducts() {
-  const snap = await getDocs(productsCol);
+  const snap = await getDocs(collection(db, "Products")); // ✅ moved inside
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
