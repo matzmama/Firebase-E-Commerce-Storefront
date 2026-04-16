@@ -1,12 +1,13 @@
-# E‑Commerce Frontend  
-A React-based e-commerce application that uses Redux Toolkit for state management, React Query for data fetching, and sessionStorage for cart persistence. This project interacts with the FakeStoreAPI to display products, manage a shopping cart, and simulate a checkout process.
+# 🛒 E-Commerce Frontend (Firebase Version)
+
+A React-based e-commerce application that uses **Redux Toolkit** for state management, **React Query** for data fetching, and **Firebase** for backend services. The app allows users to browse products, manage a shopping cart, and simulate a checkout experience.
 
 ---
 
 ## 🚀 Features
 
 ### 🛍 Product Listing
-- Fetches product categories and product data from **FakeStoreAPI** using **React Query**.
+- Fetches product data from **Firebase Firestore**.
 - Users can browse products and add items directly to the shopping cart.
 - Each product displays:
   - Title  
@@ -23,7 +24,7 @@ A React-based e-commerce application that uses Redux Toolkit for state managemen
 
 ### ✔ Remove from Cart
 - Each item in the cart includes a **Remove** button.
-- Removing an item updates Redux state and sessionStorage.
+- Removing an item updates Redux state and session storage.
 
 ### ✔ Cart Display
 The cart shows:
@@ -37,13 +38,23 @@ Totals update **dynamically** as the cart changes.
 
 ---
 
+## 🔥 Firebase Integration
+- Product data is stored and retrieved from **Firebase Firestore**.
+- Enables scalable and real-time backend functionality.
+- Easily extendable for:
+  - User authentication
+  - Order history
+  - Payment integration
+
+---
+
 ## 💾 Session Storage Persistence
 The shopping cart is saved in `sessionStorage` so that:
 - Cart contents persist across page reloads.
 - Cart state is restored when the user returns.
-- Cart updates automatically sync to sessionStorage.
+- Cart updates automatically sync to session storage.
 
-The cart is stored as an **array of product objects**, each containing:
+Example cart structure:
 ```json
 {
   "id": 1,
@@ -51,27 +62,3 @@ The cart is stored as an **array of product objects**, each containing:
   "price": 29.99,
   "quantity": 2
 }
-##Project Structure 
-ecommerce-frontend/
-│
-├── public/
-├── src/
-│   ├── features/
-│   │   ├── Cart.js
-│   │   ├── CartSlice.js
-│   ├── App.js
-│   ├── index.js
-│
-├── package.json
-├── README.md
-
-##To Run the application 
-#Install the Dependency 
-npm install
-#Run the server
-npm start
-#The app will run at 
-http://localhost:3000
-
-Jasmine
-E‑Commerce Frontend Developer
