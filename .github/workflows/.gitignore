@@ -1,0 +1,13 @@
+# Ignore Firebase secrets
+firebase-adminsdk*.json
+job-app-tracker.json
+# Node modules
+node_modules/
+
+# Environment files
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
