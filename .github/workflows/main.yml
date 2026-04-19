@@ -9,10 +9,6 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: ecommerce-frontend
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -31,10 +27,6 @@ jobs:
   deploy:
     needs: build-and-test
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: ecommerce-frontend
 
     steps:
       - name: Checkout code
