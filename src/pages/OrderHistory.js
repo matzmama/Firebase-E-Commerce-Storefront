@@ -11,19 +11,18 @@ function OrderHistory() {
 
       if (!user) return;
 
-      const data = await getUserOrders(user.uid);
+      // ✅ FIX: use email instead of uid
+      const data = await getUserOrders(user.email);
       setOrders(data);
     };
 
     fetchOrders();
   }, []);
 
-  // ✅ Format Firestore timestamp safely
   const formatDate = (timestamp) => {
     if (!timestamp) return "—";
 
     try {
-      // Firestore Timestamp → JS Date
       const date = timestamp.toDate
         ? timestamp.toDate()
         : new Date(timestamp);
@@ -51,18 +50,17 @@ function OrderHistory() {
         >
           <p><strong>Order ID:</strong> {order.id}</p>
 
-          {/* ✅ DATE ADDED */}
           <p>
             <strong>Date:</strong> {formatDate(order.createdAt)}
           </p>
 
           <p>
-            <strong>Total:</strong> ${order.total.toFixed(2)}
+            <strong>Total:</strong> ${order.total?.toFixed(2) || "0.00"}
           </p>
 
           <p><strong>Items:</strong></p>
           <ul>
-            {order.items.map((item, index) => (
+            {order.items?.map((item, index) => (
               <li key={index}>
                 {item.title} x {item.quantity}
               </li>
