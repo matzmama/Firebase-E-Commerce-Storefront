@@ -1,8 +1,8 @@
 import { useSelector, useDispatch } from "react-redux";
-import { removeFromCart, clearCart } from "./CartSlice.js";
+import { removeFromCart, clearCart } from "./CartSlice";
 import { useState } from "react";
 import { createOrder } from "../services/orderService";
-import { auth } from "../js/firebase.js";
+import { auth } from "../js/firebase";
 
 function Cart() {
   const cart = useSelector((state) => state.cart.items);
@@ -10,29 +10,26 @@ function Cart() {
 
   const [checkedOut, setCheckedOut] = useState(false);
 
-  // totals
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = cart.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
 
-  // ✅ UPDATED CHECKOUT
   const handleCheckout = async () => {
-    const user = auth.currentUser;
-
-    if (!user) {
-      alert("You must be logged in to checkout!");
-      return;
-    }
-
     try {
-      // 🔥 CREATE ORDER IN FIREBASE
-      await createOrder(user.uid, cart);
+      const user = auth.currentUser;
 
-      // 🧹 clear cart AFTER saving
+      if (!user) {
+        alert("You must be logged in to checkout!");
+        return;
+      }
+
+      await createOrder(user, cart);
+
+      alert("Order placed!");
+
       dispatch(clearCart());
-
       setCheckedOut(true);
     } catch (error) {
       console.error(error);
@@ -42,39 +39,31 @@ function Cart() {
 
   return (
     <div>
-      <h2>Shopping Cart</h2>
+      <h2>Cart</h2>
 
-      {/* Success message */}
-      {checkedOut && (
-        <p style={{ color: "green", fontWeight: "bold" }}>
-          Checkout successful! Your order has been saved.
-        </p>
+      {cart.length === 0 ? (
+        <p>No items in cart</p>
+      ) : (
+        <>
+          {cart.map((item) => (
+            <div key={item.id}>
+              <h4>{item.name}</h4>
+              <p>${item.price}</p>
+              <p>Qty: {item.quantity}</p>
+              <button onClick={() => dispatch(removeFromCart(item.id))}>
+                Remove
+              </button>
+            </div>
+          ))}
+
+          <h3>Total Items: {totalItems}</h3>
+          <h3>Total Price: ${totalPrice.toFixed(2)}</h3>
+
+          <button onClick={handleCheckout}>Checkout</button>
+        </>
       )}
 
-      <p>Total Items: {totalItems}</p>
-      <p>Total Price: ${totalPrice.toFixed(2)}</p>
-
-      {cart.length === 0 && !checkedOut && (
-        <p>Your cart is empty.</p>
-      )}
-
-      {cart.map((item) => (
-        <div key={item.id} style={{ marginBottom: "1rem" }}>
-          <h4>{item.title}</h4>
-          <p>Qty: {item.quantity}</p>
-          <p>${item.price}</p>
-
-          <button onClick={() => dispatch(removeFromCart(item.id))}>
-            Remove
-          </button>
-        </div>
-      ))}
-
-      {cart.length > 0 && (
-        <button onClick={handleCheckout}>
-          Checkout
-        </button>
-      )}
+      {checkedOut && <p>Order placed successfully!</p>}
     </div>
   );
 }
