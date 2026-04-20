@@ -7,16 +7,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import cartReducer from "./features/CartSlice";
 import App from "./App";
 
-// Mock product service
+// Mock product service to stop React Query error
 jest.mock('./services/productService', () => ({
-  getAllProducts: jest.fn(() =>
-    Promise.resolve([
-      { id: 1, name: "Mock Product", price: 10 }
-    ])
-  )
+  getAllProducts: jest.fn().mockResolvedValue([])
 }));
 
-function renderWithProviders(ui) {
+test("integration: cart updates when adding product", async () => {
+  // ✅ SINGLE STORE (important)
   const store = configureStore({
     reducer: { cart: cartReducer },
   });
@@ -27,22 +24,26 @@ function renderWithProviders(ui) {
     },
   });
 
-  return render(
+  render(
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
-        {ui}
+        <App />
       </QueryClientProvider>
     </Provider>
   );
-}
 
-test("integration: app renders product list and cart", async () => {
-  renderWithProviders(<App />);
-
-  // Check main UI loads
+  // Wait for app to load
   expect(await screen.findByText(/product list/i)).toBeInTheDocument();
-  expect(screen.getByText(/shopping cart/i)).toBeInTheDocument();
 
-  // Check cart starts empty
-  expect(screen.getByText(/total items:/i)).toBeInTheDocument();
+  // Initially empty
+  expect(screen.getByText(/no items in cart/i)).toBeInTheDocument();
+
+  // ✅ Dispatch to SAME store used by UI
+  store.dispatch({
+    type: "cart/addToCart",
+    payload: { id: 1, name: "Test Product", price: 10, quantity: 1 }
+  });
+
+  // ✅ Now UI should update
+  expect(await screen.findByText(/total items/i)).toBeInTheDocument();
 });

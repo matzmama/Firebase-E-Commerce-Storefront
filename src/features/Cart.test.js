@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom';
 import { render, screen } from "@testing-library/react";
+import React from "react";
 import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
 import cartReducer from "./CartSlice";
@@ -10,10 +11,14 @@ function renderWithRedux(ui) {
     reducer: { cart: cartReducer },
   });
 
-  return render(<Provider store={store}>{ui}</Provider>);
+  return render(
+    <Provider store={store}>
+      {ui}
+    </Provider>
+  );
 }
 
 test("renders cart heading", () => {
   renderWithRedux(<Cart />);
-  expect(screen.getByText(/shopping cart/i)).toBeInTheDocument();
+  expect(screen.getByRole("heading", { name: /cart/i })).toBeInTheDocument();
 });

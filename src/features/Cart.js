@@ -25,6 +25,7 @@ function Cart() {
         return;
       }
 
+      console.log("CART ITEMS:", JSON.stringify(cart));
       await createOrder(user, cart);
 
       alert("Order placed!");
